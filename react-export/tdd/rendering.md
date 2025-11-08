@@ -27,3 +27,16 @@ LightingLayer → blendLights()
 
 ## Diagnostics
 - `CodeTimer` instrumentation mirrored by React dev tools logger capturing render phases (grid, fog, lighting).【F:src/main/java/net/rptools/maptool/client/ui/zone/renderer/FogRenderer.java†L39-L104】
+
+## Test Matrix (see `tests/rendering.spec.ts`)
+| Scenario | Given | Expectation | Related Layer |
+| --- | --- | --- | --- |
+| Frame bus emits single event | `frameDebugBus.emit("frame", { frame: 1, timestamp: 16 })` | Subscriber counts exactly one emission (`testFrameBusEmission`) | Scheduler |
+| Layer render order stable | Deterministic `viewModel.layers` array | Capture emitted frames and assert draw order via debug logs | Grid/Token/Fog |
+| FPS clamp honored | `frameRateCap = 30` | Adjacent timestamps differ by ≥33ms in recorded events | Scheduler |
+
+```ts
+test("frame bus emits events", () => {
+  testFrameBusEmission();
+});
+```

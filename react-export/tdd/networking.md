@@ -16,3 +16,7 @@
 ## Synchronization
 - Zone activation events broadcast to ensure initiative, overlays, and selection state refresh.【F:src/main/java/net/rptools/maptool/client/ui/MapToolFrame.java†L1668-L1706】
 - Token updates routed through selection model and update enumerations for deterministic merges.【F:src/main/java/net/rptools/maptool/model/Token.java†L166-L200】
+
+## Reusable Fixtures
+- `chatWhitespaceFixture` exported from `tests/chat.spec.ts` provides baseline chat payload for translation tests; reuse it when validating network-delivered chat packets to ensure consistent trimming semantics.
+- Extend fixture set with zone and token envelopes mirroring the payload examples in `specs/connection.md` for transport-level tests.

@@ -6,6 +6,7 @@ As a GM I load a campaign and arrange chat, initiative, and asset panes so that 
 ### Acceptance Signals
 - Docking layout persists panel placement across sessions.
 - Campaign macros appear alongside toolbar and initiative data.【F:src/main/java/net/rptools/maptool/model/Campaign.java†L71-L188】
+- Trace to Acceptance Criteria **#1 Layout Fidelity** and **#5 Campaign Round-Trip** for measurable outcomes.
 
 ## GM — Zone Switching
 As a GM I swap maps during play while preserving fog, lighting, and player focus, so transitions feel instant.【F:src/main/java/net/rptools/maptool/client/ui/MapToolFrame.java†L1658-L1706】【F:src/main/java/net/rptools/maptool/model/Zone.java†L817-L933】
@@ -13,6 +14,7 @@ As a GM I swap maps during play while preserving fog, lighting, and player focus
 ### Acceptance Signals
 - Renderer swap fires zone activation/deactivation events.
 - Fog and vision caches hydrate before players regain control.【F:src/main/java/net/rptools/maptool/client/ui/zone/renderer/ZoneRenderer.java†L129-L200】
+- Aligns with Acceptance Criteria **#2 Zone Lifecycle** and **#4 Fog Visuals**.
 
 ## Player — Multiplayer Entry
 As a player I join a hosted session and receive the current zone state after a secure handshake so I can participate immediately.【F:src/main/java/net/rptools/maptool/client/MapToolConnection.java†L45-L115】【F:src/main/java/net/rptools/maptool/client/ClientMessageHandler.java†L369-L941】
@@ -20,6 +22,7 @@ As a player I join a hosted session and receive the current zone state after a s
 ### Acceptance Signals
 - Connection handshake success toggles connected UI.
 - Zone payload arrives and hydrates client stores.
+- Satisfies Acceptance Criteria **#7 Handshake Robustness**.
 
 ## Scripter — Macro Automation
 As a scripter I define slash commands and aliases to automate rolls and chat output so shared macros survive campaign reloads.【F:src/main/java/net/rptools/maptool/client/macro/MacroManager.java†L45-L165】
@@ -27,6 +30,7 @@ As a scripter I define slash commands and aliases to automate rolls and chat out
 ### Acceptance Signals
 - Alias persistence matches legacy campaign exports.【F:src/main/java/net/rptools/maptool/model/Campaign.java†L71-L188】
 - Macro execution resolves to campaign or client scope.
+- Maps to Acceptance Criteria **#6 Macro & Chat**.
 
 ## Player — Chat Translation
 As a player I rely on translation rules to reformat chat lines, enabling custom filters and whispers without manual edits.【F:src/main/java/net/rptools/maptool/client/ui/chat/ChatProcessor.java†L20-L42】
@@ -34,3 +38,4 @@ As a player I rely on translation rules to reformat chat lines, enabling custom 
 ### Acceptance Signals
 - Translation groups enable/disable at runtime.
 - Processed output streams to history and macro log.
+- Shares validation path with Acceptance Criteria **#6 Macro & Chat**.
