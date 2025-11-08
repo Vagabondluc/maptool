@@ -38,3 +38,8 @@ export interface MacroContext {
 ## Events
 - `macro:executed` carries `{ id, context, output }` for chat integration.
 - `macro:alias-changed` triggers persistence sync for campaign exports.【F:src/main/java/net/rptools/maptool/model/Campaign.java†L71-L188】
+
+## Implementation References
+- Runtime evaluator lives in `specs/macro-runtime.ts` with expression support and command dispatch mirroring MapTool macro engine.
+- Parser + AST scaffolding described in `specs/macro-ast.ts` and `specs/macro-eval.ts` pair with the documentation kit added to the roadmap instructions.
+- Validation flows covered by `tests/macro.spec.ts` and scenario coverage in `tests/macro-e2e.spec.ts`; use them when wiring registry behavior defined above.
