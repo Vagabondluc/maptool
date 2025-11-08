@@ -30,9 +30,18 @@ export class WebSocketBridge {
     const socket = new WebSocket(options.url);
     this.socket = socket;
     return new Promise((resolve, reject) => {
+      const removeHandshakeListeners = () => {
+        socket.removeEventListener("open", onOpen);
+      };
+      const removeAllListeners = () => {
+        removeHandshakeListeners();
+        socket.removeEventListener("error", onError);
+        socket.removeEventListener("message", onMessage);
+      };
       const onError = (event: Event) => {
         const error = event instanceof ErrorEvent ? event.error ?? new Error(event.message) : new Error("Connection failed");
         this.emitter.emit("error", error);
+        removeAllListeners();
         socket.close();
         reject(error);
       };
@@ -50,16 +59,11 @@ export class WebSocketBridge {
         this.emitter.emit("activity", { ...this.activity });
         const data = JSON.parse(event.data as string) as MessagePayload;
         if (data.type === "handshake:ack") {
-          cleanup();
+          removeHandshakeListeners();
           resolve({ id: (data.payload as { sessionId: string }).sessionId });
           return;
         }
         this.emitter.emit("message", data);
-      };
-      const cleanup = () => {
-        socket.removeEventListener("error", onError);
-        socket.removeEventListener("open", onOpen);
-        socket.removeEventListener("message", onMessage);
       };
       socket.addEventListener("error", onError);
       socket.addEventListener("open", onOpen);
