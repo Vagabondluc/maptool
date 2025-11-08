@@ -28,15 +28,31 @@ LightingLayer → blendLights()
 ## Diagnostics
 - `CodeTimer` instrumentation mirrored by React dev tools logger capturing render phases (grid, fog, lighting).【F:src/main/java/net/rptools/maptool/client/ui/zone/renderer/FogRenderer.java†L39-L104】
 
-## Test Matrix (see `tests/rendering.spec.ts`)
-| Scenario | Given | Expectation | Related Layer |
-| --- | --- | --- | --- |
-| Frame bus emits single event | `frameDebugBus.emit("frame", { frame: 1, timestamp: 16 })` | Subscriber counts exactly one emission (`testFrameBusEmission`) | Scheduler |
-| Layer render order stable | Deterministic `viewModel.layers` array | Capture emitted frames and assert draw order via debug logs | Grid/Token/Fog |
-| FPS clamp honored | `frameRateCap = 30` | Adjacent timestamps differ by ≥33ms in recorded events | Scheduler |
+## Acceptance Tables (see `tests/rendering.spec.ts`)
 
-```ts
-test("frame bus emits events", () => {
-  testFrameBusEmission();
-});
-```
+### Grid Alignment
+| Scenario | Given | Expectation | LayerResponsibilities reference |
+| --- | --- | --- | --- |
+| Snap-to-scale grid | `viewModel.layers` injects a mock grid renderer that reads `zone.scale = 1.25` | Recorded draw calls align canvas transforms to scaled unit grid | `LayerResponsibilities.grid.rendererCalls` drive verification of grid and coordinate passes.【F:react-export/specs/zone.md†L32-L52】 |
+| Coordinate overlay toggled | `LayerResponsibilities.grid.showGrid` flag flipped off in fixture | Debug capture shows no `gridRenderer.renderCoordinates` marker for the frame | `LayerResponsibilities.grid.showGrid` documents toggle gating draw markers.【F:react-export/specs/zone.md†L32-L52】 |
+
+### Halo Visibility Toggles
+| Scenario | Given | Expectation | LayerResponsibilities reference |
+| --- | --- | --- | --- |
+| Halos enabled | Mocked `viewModel.layers` includes halo renderer while `enableHalos = true` | Frame debug log records `haloRenderer.renderHalos` before token compositing | `LayerResponsibilities.halos.rendererCalls` enumerates the halo pass order.【F:react-export/specs/zone.md†L53-L66】 |
+| Halos suppressed | `enableHalos = false` via deterministic fixture | No halo debug marker and draw order skips halo renderer | `LayerResponsibilities.halos.enableHalos` guides expectation for toggle coverage.【F:react-export/specs/zone.md†L53-L66】 |
+
+### Layered Light Composition
+| Scenario | Given | Expectation | LayerResponsibilities reference |
+| --- | --- | --- | --- |
+| Full lighting stack | Mock lighting view model seeds lights, lumens, auras, darkness arrays | Captured draw order logs four passes in `lights → lumens → auras → darkness` sequence | `LayerResponsibilities.lighting.rendererCalls` lists the composed order to assert.【F:react-export/specs/zone.md†L33-L65】 |
+| Darkness only | Fixture empties light/auras arrays and toggles darkness true | Debug markers show only `darknessRenderer.render` before fog blend | `LayerResponsibilities.lighting.lightPasses` constrains which passes should execute.【F:react-export/specs/zone.md†L33-L65】 |
+
+## Deterministic Test Hooks
+- Mocked `viewModel` objects feed `RenderingDemo` layers array so each pass emits labelled renderers into the shared `frameDebugBus`, enabling assertions on draw order markers and FPS cadence.【F:react-export/examples/rendering-demo.tsx†L5-L47】【F:react-export/tests/rendering.spec.ts†L1-L19】
+- Tests subscribe to the `frameDebugBus` and flip `LayerResponsibilities` flags in fixtures to guarantee deterministic pass visibility and marker emission per scenario above.【F:react-export/examples/rendering-demo.tsx†L5-L47】【F:react-export/specs/zone.md†L32-L66】
+
+## Fixture Sources
+- `examples/rendering-demo.tsx` exposes the frame scheduler stub and bus used across alignment and halo acceptance checks.【F:react-export/examples/rendering-demo.tsx†L1-L47】
+- `examples/fog-pipeline.tsx` provides a canvas fixture for fog/vision blending that layers on top of lighting assertions when extending composition suites.【F:react-export/examples/fog-pipeline.tsx†L1-L48】
+- `specs/zone.md` and `specs/fog.md` codify the `LayerResponsibilities` map and fog contract referenced by the acceptance tables, keeping test toggles synchronized with spec updates.【F:react-export/specs/zone.md†L32-L67】【F:react-export/specs/fog.md†L1-L32】
