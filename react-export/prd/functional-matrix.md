@@ -1,0 +1,11 @@
+# Functional Coverage Matrix
+
+| Requirement | MapTool Source | React Translation | Validation |
+| --- | --- | --- | --- |
+| Docking layout hosting canvas, chat, initiative | MapToolFrame layout & docking manager.【F:src/main/java/net/rptools/maptool/client/ui/MapToolFrame.java†L431-L714】 | `<DockingLayout>` grid with canvas slot + resizable side panes. | Visual parity across viewport breakpoints.
+| Zone activation/deactivation + renderer swap | `setCurrentZoneRenderer` transitions, event bus posts.【F:src/main/java/net/rptools/maptool/client/ui/MapToolFrame.java†L1658-L1706】 | `useZoneHub` publishes `zone:activated/deactivated`; canvas mounts new renderer. | Event log records zone IDs, focus restored to canvas.
+| Renderer stack (grid, tokens, fog, lighting) | ZoneRenderer composition and DebounceExecutor.【F:src/main/java/net/rptools/maptool/client/ui/zone/renderer/ZoneRenderer.java†L129-L200】 | `<CanvasView>` orchestrates typed layer components with shared frame store. | Frame diagnostics capture <50 ms loop under load.
+| Fog compositing rules | FogRenderer buffered render pipeline.【F:src/main/java/net/rptools/maptool/client/ui/zone/renderer/FogRenderer.java†L39-L104】 | `useFogPipeline` renders ImageBitmap masks with blend modes. | Soft/hard fog visual diff <= 1px vs reference screenshots.
+| Campaign persistence | Campaign serializes zones, macros, fog flags.【F:src/main/java/net/rptools/maptool/model/Campaign.java†L41-L188】 | Dexie-backed stores per campaign; import/export zipped JSON. | Golden files round-trip without loss.
+| Macro & chat automation | MacroManager registration + ChatProcessor translation.【F:src/main/java/net/rptools/maptool/client/macro/MacroManager.java†L45-L165】【F:src/main/java/net/rptools/maptool/client/ui/chat/ChatProcessor.java†L20-L42】 | `macroBus` registers commands, chat pipeline runs translation array. | CLI harness replays legacy macro scripts.
+| Multiplayer sync | MapToolConnection handshake + message routing.【F:src/main/java/net/rptools/maptool/client/MapToolConnection.java†L45-L115】【F:src/main/java/net/rptools/maptool/client/ClientMessageHandler.java†L369-L941】 | WebSocket/WebRTC bridge replicates handshake, dispatches zone payloads. | Integration test verifies join, zone broadcast, disconnect hooks.
